@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Accessible Slider Scale Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <main>
+    <h1>Accessible Slider Scale Demo</h1>
+
+    <p>
+      I’ve worked in research for a few years and used several survey-building tools.
+      One thing I kept running into was how difficult it is to make surveys truly accessible —
+      and even when they claim to be accessible, the experience for screen reader users is often poor.
+    </p>
+
+    <p>
+      This is a simple attempt at a clean, accessible slider-based question.
+    </p>
+
+    <section>
+      <h2>Demo</h2>
+
+          <p id="scaleDescription">
+            0 means “Naw, it's not for me.” and 9 means “I'll club penguins for a bar!”
+          </p>
+
+      <form id="sliderForm">
+        <fieldset>
+          <legend>How much do you like chocolate?</legend>
+
+          <label for="chocoRange">
+            Select a value from 0 to 9:
+          </label>
+
+          <input
+            type="range"
+            id="chocoRange"
+            name="chocoRange"
+            min="0"
+            max="9"
+            step="1"
+            value="5"
+          >
+
+        </fieldset>
+
+        <button type="submit">Submit</button>
+      </form>
+
+      <p id="status" aria-live="polite"></p>
+    </section>
+
+    <hr>
+
+    <section>
+      <h2>Early Access</h2>
+
+      <p>
+        I’m building a simple, fully accessible survey tool based on this idea —
+        focused on clean interaction and proper screen reader support.
+      </p>
+
+      <ul>
+        <li>Accessible by default</li>
+        <li>No clutter, no noise</li>
+        <li>Simple shareable links</li>
+      </ul>
+
+      <p>
+        I’m looking for <strong>10 early users</strong>.
+      </p>
+
+      <p>
+        Pay $5 and include the message <strong>"ACCESS"</strong> to reserve a spot.
+      </p>
+
+      <p>
+        If fewer than 2 people sign up, I’ll refund everyone in full.
+      </p>
+
+      <a href="https://ko-fi.com/YOUR_LINK_HERE">
+        Reserve a spot on Ko-fi
+      </a>
+    </section>
+
+  </main>
+
+  <script>
+    const range = document.getElementById('chocoRange');
+    const currentValue = document.getElementById('currentValue');
+    const form = document.getElementById('sliderForm');
+    const status = document.getElementById('status');
+
+    // Update value live
+    range.addEventListener('input', () => {
+      currentValue.textContent = "Current value: " + range.value;
+    });
+
+    // Form submission
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      status.textContent = "Thanks! Your response has been recorded (demo only).";
+    });
+  </script>
+
+</body>
+</html>
