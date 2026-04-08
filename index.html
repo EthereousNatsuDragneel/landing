@@ -12,20 +12,21 @@
     <h1>Accessible Slider Scale Demo</h1>
 
     <p>
-      I’ve worked in research for a few years and used several survey-building tools.
-      One thing I kept running into was how difficult it is to make surveys truly accessible —
+      I'm legally blind and I’ve worked in research for a few years and used several survey-building tools.
+ I kept running into challenges like making surveys truly accessible,
       and even when they claim to be accessible, the experience for screen reader users is often poor.
+ It was insane that I needed sighted assistance to fill "accessible" forms!
     </p>
 
     <p>
-      This is a simple attempt at a clean, accessible slider-based question.
+      This is a simple, clean, accessible slider-based question.
     </p>
 
     <section>
       <h2>Demo</h2>
 
           <p id="scaleDescription">
-            0 means “Naw, it's not for me.” and 9 means “I'll club penguins for a bar!”
+            0 = Not interested.<br> 9 = Extremely interested.
           </p>
 
       <form id="sliderForm">
@@ -44,6 +45,7 @@
             max="9"
             step="1"
             value="5"
+aria-label="Chocolate preference slider"
           >
 
         </fieldset>
@@ -60,29 +62,35 @@
       <h2>Early Access</h2>
 
       <p>
-        I’m building a simple, fully accessible survey tool based on this idea —
-        focused on clean interaction and proper screen reader support.
+I've since worked with a few people making their forms accessible and test them.
+        So I’m building a simple, fully accessible survey tool based on this idea
+        focused on clean interaction and proper screen reader support to make
+ clean, accessible, simple survey questions with clear labels and information.
       </p>
 
       <ul>
         <li>Accessible by default</li>
         <li>No clutter, no noise</li>
-        <li>Simple shareable links</li>
+        <li>Simple shareable links/embed code</li>
       </ul>
 
       <p>
-        I’m looking for <strong>10 early users</strong>.
+        I’m looking for <strong>10 early users</strong><br>
+ Founding users will have:</p>
+<ul><li>direct influence on what features are built next</li>
+<li>access to the survey tool as it's being built</li>
+<li>access to beta features</li>
+<li>$5/month</li></ul>
+
+      <p>
+        It's $5/month and include the message <strong>"ACCESS"</strong> to reserve a spot.
       </p>
 
       <p>
-        Pay $5 and include the message <strong>"ACCESS"</strong> to reserve a spot.
+If I don’t reach enough early users, I’ll refund any early supporters.
       </p>
 
-      <p>
-        If fewer than 2 people sign up, I’ll refund everyone in full.
-      </p>
-
-      <a href="https://ko-fi.com/YOUR_LINK_HERE">
+      <a href="https://ko-fi.com/msingh9901">
         Reserve a spot on Ko-fi
       </a>
     </section>
@@ -91,14 +99,8 @@
 
   <script>
     const range = document.getElementById('chocoRange');
-    const currentValue = document.getElementById('currentValue');
     const form = document.getElementById('sliderForm');
     const status = document.getElementById('status');
-
-    // Update value live
-    range.addEventListener('input', () => {
-      currentValue.textContent = "Current value: " + range.value;
-    });
 
     // Form submission
     form.addEventListener('submit', function (e) {
