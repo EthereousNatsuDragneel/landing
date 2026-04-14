@@ -1,114 +1,429 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Accessible Slider Scale Demo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Survaccess: Surveys that work for everyone</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Playfair Display', 'serif'],
+            sans: ['Outfit', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --ink:    #1a0a00;
+      --muted:  #7a5c44;
+      --accent: #b8621a;
+      --warm:   #e8c99a;
+      --cream:  #faf4eb;
+      --card:   #fff9f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Subtle radial glow background */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse 60% 40% at 10% 20%, #f0d9b515 0%, transparent 70%),
+        radial-gradient(ellipse 50% 60% at 90% 80%, #c8771a0d 0%, transparent 70%);
+    }
+
+    /* ── Skip link ── */
+    .skip { position: absolute; top: -99px; left: 1rem; background: var(--accent); color: #fff; padding: .4rem .9rem; border-radius: 6px; font-size: .85rem; font-weight: 600; text-decoration: none; transition: top .2s; z-index: 999; }
+    .skip:focus { top: 1rem; }
+
+    /* ── Fade-up stagger ── */
+    @keyframes up { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+    .fade { opacity: 0; animation: up .65s cubic-bezier(.22,.68,0,1.2) forwards; }
+    .d1 { animation-delay: .05s; } .d2 { animation-delay: .15s; } .d3 { animation-delay: .25s; }
+    .d4 { animation-delay: .35s; } .d5 { animation-delay: .45s; } .d6 { animation-delay: .55s; }
+
+    /* ── Layout ── */
+    .wrap { max-width: 560px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+
+    /* ── Badge ── */
+    .badge { display: inline-flex; align-items: center; gap: .4rem; font-size: .7rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); background: #b8621a14; border: 1px solid #b8621a30; padding: .35rem .9rem; border-radius: 99px; }
+
+    /* ── Headings ── */
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 6vw, 3.2rem); line-height: 1.15; color: var(--ink); }
+    h1 em { font-style: italic; color: var(--accent); }
+
+    /* ── Divider ── */
+    .rule { border: none; border-top: 1px solid #e8c99a70; margin: 2.5rem 0; }
+
+    /* ── Card ── */
+    .card { background: var(--card); border: 1px solid #e8c99a90; border-radius: 20px; padding: 2rem; box-shadow: 0 2px 24px #b8621a0a, 0 1px 3px #0000000a; }
+
+    /* ── Form label ── */
+    .q-label { display: block; font-size: .8rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: .6rem; }
+
+    /* ── Text input ── */
+    .text-input {
+      width: 100%; background: var(--cream); border: 1.5px solid var(--warm);
+      border-radius: 12px; padding: .85rem 1.1rem; font-family: 'Outfit', sans-serif;
+      font-size: .95rem; color: var(--ink); outline: none; resize: vertical;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .text-input::placeholder { color: #c0a882; }
+    .text-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px #b8621a20; }
+
+    /* ── Radio pills ── */
+    .radio-group { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+    .radio-pill input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .radio-pill label {
+      display: flex; align-items: center; gap: .55rem; padding: .75rem 1rem;
+      border-radius: 12px; border: 1.5px solid var(--warm); background: var(--cream);
+      cursor: pointer; font-size: .9rem; font-weight: 500; color: var(--muted);
+      transition: all .2s;
+    }
+    .radio-pill label .pip {
+      width: 16px; height: 16px; border-radius: 50%; border: 2px solid #d4ab7a;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    .radio-pill input:checked + label { border-color: var(--accent); background: #b8621a0c; color: var(--ink); }
+    .radio-pill input:checked + label .pip { border-color: var(--accent); background: var(--accent); }
+    .radio-pill input:checked + label .pip::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+    .radio-pill input:focus-visible + label { outline: 2.5px solid var(--accent); outline-offset: 2px; }
+
+    /* ── Range ── */
+    input[type=range] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 5px; border-radius: 99px;
+      background: linear-gradient(to right, var(--accent) var(--pct, 55.6%), var(--warm) var(--pct, 55.6%));
+      outline: none; cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%;
+      background: var(--accent); border: 3px solid #fff;
+      box-shadow: 0 2px 10px #b8621a40; cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+    }
+    input[type=range]:hover::-webkit-slider-thumb,
+    input[type=range]:focus::-webkit-slider-thumb { transform: scale(1.2); box-shadow: 0 4px 18px #b8621a55; }
+    input[type=range]:focus { outline: 2.5px solid var(--accent); outline-offset: 6px; border-radius: 99px; }
+
+    .scale-val { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 700; color: var(--accent); line-height: 1; }
+    .scale-ends { display: flex; justify-content: space-between; font-size: .75rem; color: var(--muted); margin-top: .5rem; }
+
+    /* ── Button ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+      width: 100%; padding: 1rem; border: none; border-radius: 14px; cursor: pointer;
+      font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 600; color: #fff;
+      background: linear-gradient(135deg, #8b3a00, var(--accent) 60%, #d4821f);
+      background-size: 200% 100%; background-position: 0 0;
+      box-shadow: 0 4px 24px #b8621a35; transition: background-position .35s, transform .15s, box-shadow .15s;
+    }
+    .btn:hover { background-position: 100% 0; transform: translateY(-1px); box-shadow: 0 8px 32px #b8621a50; }
+    .btn:active { transform: translateY(0); }
+    .btn:focus-visible { outline: 2.5px solid var(--accent); outline-offset: 3px; }
+    .btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    /* ── Success ── */
+    @keyframes pop { from { opacity: 0; transform: scale(.95) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    #status-msg {
+      display: none; align-items: flex-start; gap: .9rem;
+      background: #b8621a0e; border: 1.5px solid #b8621a35;
+      border-radius: 14px; padding: 1.1rem 1.25rem;
+      animation: pop .4s cubic-bezier(.22,.68,0,1.2) forwards;
+    }
+    #status-msg.show { display: flex; }
+    #status-msg .icon { font-size: 1.4rem; line-height: 1; flex-shrink: 0; }
+    #status-msg p { font-size: .9rem; color: var(--ink); line-height: 1.55; }
+    #status-msg strong { color: var(--accent); }
+
+    /* ── Features list ── */
+    .features li { display: flex; align-items: baseline; gap: .5rem; font-size: .9rem; color: var(--muted); padding: .35rem 0; }
+    .features li::before { content: '—'; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+
+    /* ── Founding block ── */
+    .founding { border-left: 3px solid var(--accent); padding-left: 1.1rem; }
+    .founding p { font-size: .9rem; color: var(--muted); line-height: 1.6; }
+    .founding strong { color: var(--ink); font-weight: 600; }
+
+    /* ── CTA link ── */
+    .cta-link {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .8rem 1.6rem; border-radius: 12px; font-size: .9rem; font-weight: 600;
+      border: 1.5px solid var(--ink); color: var(--ink); text-decoration: none;
+      transition: background .2s, color .2s;
+    }
+    .cta-link:hover { background: var(--ink); color: var(--cream); }
+    .cta-link:focus-visible { outline: 2.5px solid var(--accent); outline-offset: 3px; }
+
+    .closed-pill { display: inline-flex; align-items: center; gap: .4rem; font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #a07050; background: #e8c99a40; border: 1px solid #e8c99a; padding: .3rem .8rem; border-radius: 99px; }
+
+    /* ── Reduced motion ── */
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+    /* ── High contrast ── */
+    @media (forced-colors: active) {
+      .btn, .cta-link { border: 2px solid ButtonText; }
+      input[type=range] { forced-color-adjust: none; }
+    }
+  </style>
 </head>
 <body>
 
-  <main>
-    <h1>Accessible Slider Scale Demo</h1>
+  <a href="#demo-form" class="skip">Skip to survey demo</a>
 
-    <p>
-      I'm legally blind and I’ve worked in research for a few years and used several survey-building tools.
- I kept running into challenges like making surveys truly accessible,
-      and even when they claim to be accessible, the experience for screen reader users is often poor.
- It was insane that I needed sighted assistance to fill "accessible" forms!
-    </p>
+  <div class="wrap">
 
-    <p>
-      This is a simple, clean, accessible slider-based question.
-    </p>
+    <!-- ── Header ── -->
+    <header role="banner" class="fade d1 flex items-center justify-between mb-10">
+      <div class="flex items-center gap-2">
+        <span aria-hidden="true" style="font-size:1.3rem">🍫</span>
+        <span style="font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; color:var(--ink);">Survaccess</span>
+      </div>
+      <span class="badge"><span aria-hidden="true">✦</span> Early Access</span>
+    </header>
 
-    <section>
-      <h2>Demo</h2>
-
-          <p id="scaleDescription">
-            0 = Not interested.<br> 9 = Extremely interested.
-          </p>
-
-      <form id="sliderForm">
-        <fieldset>
-          <legend>How much do you like chocolate?</legend>
-
-          <label for="chocoRange">
-            Select a value from 0 to 9:
-          </label>
-
-          <input
-            type="range"
-            id="chocoRange"
-            name="chocoRange"
-            min="0"
-            max="9"
-            step="1"
-            value="5"
-aria-label="Chocolate preference slider"
-          >
-
-        </fieldset>
-
-        <button type="submit">Submit</button>
-      </form>
-
-      <p id="status" aria-live="polite"></p>
+    <!-- ── Hero ── -->
+    <section aria-labelledby="hero-h1" class="mb-10">
+      <h1 id="hero-h1" class="fade d2 mb-4">
+        Surveys that work<br><em>for everyone.</em>
+      </h1>
+      <h2 id="founding-h2" style="font-family:'Playfair Display',serif; font-size:1.4rem; margin-bottom:.9rem;">Launching May 2026</h2>
+      <p class="fade d3" style="font-size:1rem; color:var(--muted); line-height:1.7; max-width:460px;">
+        I'm legally blind. Most "accessible" survey tools still require sighted help to fill out.
+        So I'm building one that actually works: clean labels, proper screen reader support, no clutter.
+      </p>
     </section>
 
-    <hr>
+    <hr class="rule fade d3" />
 
-    <section>
-      <h2>Early Access</h2>
+    <!-- ── Demo ── -->
+    <section aria-labelledby="demo-h2" class="fade d4 mb-2">
+      <h2 id="demo-h2" style="font-family:'Playfair Display',serif; font-size:1.4rem; margin-bottom:.4rem;">Try the demo</h2>
 
-      <p>
-I've since worked with a few people making their forms accessible and test them.
-        So I’m building a simple, fully accessible survey tool based on this idea
-        focused on clean interaction and proper screen reader support to make
- clean, accessible, simple survey questions with clear labels and information.
-      </p>
+      <div class="card">
+        <form id="demo-form" novalidate>
+          <div id="form-err" role="alert" aria-live="assertive" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"></div>
 
-      <ul>
-        <li>Accessible by default</li>
-        <li>No clutter, no noise</li>
-        <li>Simple shareable links/embed code</li>
+          <!-- Q1 -->
+          <fieldset style="border:none; padding:0; margin:0 0 1.8rem;">
+            <legend style="width:100%;">
+              <span class="q-label">Q1. </span>
+              <span style="font-size:.95rem; font-weight:500; color:var(--ink); display:block;">
+                Describe your ideal chocolate in a few words.
+                <span class="sr-only"> Required.</span>
+              </span>
+            </legend>
+            <label for="q1" class="sr-only">Describe your ideal chocolate. Required.</label>
+            <textarea
+              id="q1" name="q1"
+              class="text-input" rows="2"
+              required aria-required="true"
+              aria-describedby="q1-err"
+              placeholder="e.g. dark, bitter, smoky…"
+              style="margin-top:.7rem;"
+              maxlength="150"
+            ></textarea>
+            <p id="q1-err" role="alert" style="display:none; font-size:.8rem; color:#c0392b; margin-top:.4rem; font-weight:500;"></p>
+          </fieldset>
+
+          <!-- Q2 -->
+          <fieldset style="border:none; padding:0; margin:0 0 1.8rem;" aria-describedby="q2-err">
+            <legend style="width:100%;">
+              <span class="q-label">Q2. </span>
+              <span style="font-size:.95rem; font-weight:500; color:var(--ink); display:block;">
+                Which chocolate do you prefer?
+                <span class="sr-only"> Required. Choose one.</span>
+              </span>
+            </legend>
+            <div class="radio-group" style="margin-top:.7rem;">
+              <div class="radio-pill">
+                <input type="radio" id="r-dark"  name="choco-type" value="dark"  required />
+                <label for="r-dark" ><span class="pip" aria-hidden="true"></span><span aria-hidden="true">🌑</span> Dark</label>
+              </div>
+              <div class="radio-pill">
+                <input type="radio" id="r-milk"  name="choco-type" value="milk" />
+                <label for="r-milk" ><span class="pip" aria-hidden="true"></span><span aria-hidden="true">🥛</span> Milk</label>
+              </div>
+              <div class="radio-pill">
+                <input type="radio" id="r-white" name="choco-type" value="white" />
+                <label for="r-white"><span class="pip" aria-hidden="true"></span><span aria-hidden="true">🤍</span> White</label>
+              </div>
+              <div class="radio-pill">
+                <input type="radio" id="r-ruby"  name="choco-type" value="ruby" />
+                <label for="r-ruby" ><span class="pip" aria-hidden="true"></span><span aria-hidden="true">🩷</span> Ruby</label>
+              </div>
+            </div>
+            <p id="q2-err" role="alert" style="display:none; font-size:.8rem; color:#c0392b; margin-top:.4rem; font-weight:500;"></p>
+          </fieldset>
+
+          <!-- Q3 -->
+          <fieldset style="border:none; padding:0; margin:0 0 1.8rem;">
+            <legend style="width:100%;">
+              <span class="q-label">Q3. </span>
+              <span style="font-size:.95rem; font-weight:500; color:var(--ink); display:block;">
+                How much do you like chocolate?
+                <span class="sr-only"> Slide from 0 (not interested) to 9 (extremely interested). Required.</span>
+              </span>
+            </legend>
+
+            <div style="display:flex; align-items:center; gap:1.2rem; margin-top:1rem;">
+              <div style="text-align:center; min-width:52px;">
+                <span class="scale-val" id="scale-display" aria-hidden="true">5</span>
+                <span style="display:block; font-size:.7rem; color:var(--muted); letter-spacing:.06em; text-transform:uppercase;">/ 9</span>
+              </div>
+              <div style="flex:1;">
+                <label for="q3" class="sr-only">Chocolate interest level, 0 to 9. Current value: 5.</label>
+                <input
+                  type="range" id="q3" name="q3"
+                  min="0" max="9" step="1" value="5"
+                  required aria-required="true"
+                  aria-valuemin="0" aria-valuemax="9" aria-valuenow="5"
+                  aria-describedby="scale-desc"
+                  oninput="onScale(this)"
+                  style="--pct:55.6%;"
+                />
+                <div class="scale-ends">
+                  <span id="scale-desc">0 = Not interested</span>
+                  <span>9 = Extremely interested</span>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Submit -->
+          <button type="submit" class="btn" id="submit-btn">
+            <span id="btn-label">Submit response</span>
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </form>
+
+        <!-- Status -->
+        <div id="status-msg" role="status" aria-live="polite" aria-atomic="true" tabindex="-1" style="margin-top:1rem;">
+          <span class="icon" aria-hidden="true">✓</span>
+          <p><strong>Response recorded</strong> | this is demo mode, nothing is stored. Thanks for trying it out.</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule fade d4" />
+
+    <!-- ── What I'm building ── -->
+    <section aria-labelledby="about-h2" class="fade d5 mb-8">
+      <h2 id="about-h2" style="font-family:'Playfair Display',serif; font-size:1.4rem; margin-bottom:.9rem;">What I'm building</h2>
+      <ul class="features" role="list" style="list-style:none; padding:0; margin:0 0 1.2rem;">
+        <li>Accessible by default: works with any screen reader, keyboard-only</li>
+        <li>No clutter, no noise: clean questions, clear labels</li>
+        <li>Simple shareable links &amp; embed code</li>
       </ul>
-
-      <p>
-        I’m looking for <strong>10 early users</strong><br>
- Founding users will have:</p>
-<ul><li>direct influence on what features are built next</li>
-<li>access to the survey tool as it's being built</li>
-<li>access to beta features</li>
-<li>$5/month</li></ul>
-
-      <p>
-        It's $5/month and include the message <strong>"ACCESS"</strong> to reserve a spot.
-      </p>
-
-      <p>
-If I don’t reach enough early users, I’ll refund any early supporters.
-      </p>
-
-      <p>
-(Spots have Closed)
-      </p>
     </section>
 
-  </main>
+    <!-- ── Founding ── -->
+    <section aria-labelledby="founding-h2" class="fade d5 mb-10">
+      <h2 id="founding-h2" style="font-family:'Playfair Display',serif; font-size:1.4rem; margin-bottom:.9rem;">Founding users</h2>
+      <div class="founding mb-5">
+        <p>Looking for <strong>10 early users</strong>: direct influence on what gets built, access while it's being built, beta features. <strong>$5/month for the next 2 years.</strong></p>
+        <p style="margin-top:.6rem;">Include the word <strong>"ACCESS"</strong> in your message with the payment to reserve a spot. If I don't reach enough users, early supporters are fully refunded.</p>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+        <a href="https://ko-fi.com/msingh9901" class="cta-link" aria-label="Reserve your founding spot">
+          Reserve a spot
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7h10M7.5 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </section>
+
+    <!-- ── Footer ── -->
+    <footer role="contentinfo" class="fade d6" style="border-top:1px solid #e8c99a60; padding-top:1.5rem;">
+      <p style="font-size:.78rem; color:#b09070;">© 2026 Survaccess · Built by someone who needed it</p>
+    </footer>
+
+  </div><!-- /wrap -->
 
   <script>
-    const range = document.getElementById('chocoRange');
-    const form = document.getElementById('sliderForm');
-    const status = document.getElementById('status');
+    // ── Scale ──
+    function onScale(el) {
+      const v = el.value;
+      const pct = (v / 9) * 100;
+      el.style.setProperty('--pct', pct + '%');
+      el.setAttribute('aria-valuenow', v);
+      const disp = document.getElementById('scale-display');
+      disp.textContent = v;
+      // Update sr label
+      el.previousElementSibling && (el.previousElementSibling.textContent = `Chocolate interest level, 0 to 9. Current value: ${v}.`);
+    }
 
-    // Form submission
-    form.addEventListener('submit', function (e) {
+    // ── Submit ──
+    document.getElementById('demo-form').addEventListener('submit', function(e) {
       e.preventDefault();
+      const errBox = document.getElementById('form-err');
+      let errs = [];
 
-      status.textContent = "Thanks! Your response has been recorded (demo only).";
+      // Q1
+      const q1 = document.getElementById('q1');
+      const q1err = document.getElementById('q1-err');
+      if (!q1.value.trim()) {
+        q1err.textContent = 'Please describe your chocolate preference.';
+        q1err.style.display = 'block';
+        errs.push('Question 1 is required.');
+      } else {
+        q1err.style.display = 'none';
+      }
+
+      // Q2
+      const radio = document.querySelector('input[name="choco-type"]:checked');
+      const q2err = document.getElementById('q2-err');
+      if (!radio) {
+        q2err.textContent = 'Please select a chocolate type.';
+        q2err.style.display = 'block';
+        errs.push('Question 2 is required.');
+      } else {
+        q2err.style.display = 'none';
+      }
+
+      if (errs.length) {
+        errBox.textContent = 'Please fix: ' + errs.join(' ');
+        (!document.getElementById('q1').value.trim() ? document.getElementById('q1') : document.querySelector('input[name="choco-type"]')).focus();
+        return;
+      }
+
+      errBox.textContent = '';
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+      document.getElementById('btn-label').textContent = 'Submitting…';
+
+      setTimeout(() => {
+        btn.style.display = 'none';
+        const msg = document.getElementById('status-msg');
+        msg.classList.add('show');
+        msg.focus();
+      }, 900);
     });
   </script>
-
 </body>
 </html>
